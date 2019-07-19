@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
+    <script src="js/amazon-cognito-identity.min.js"></script>  
+    <script src="js/config.js"></script>
+    <script>
+    //    function getHtml(template) {
+    //       return template.join('\n');
+    //    }
+    //    listAlbums();
+    </script>
+  </head>
+  <body>
+    <h1>My Photo Albums App</h1>
+    <div id="app"></div>
+    <input id="photoupload" type="file" accept="image/*">
+      <button id="addphoto" onclick="addPhoto()">
+        Add Photo
+      </button>
+  </body>
+  <script>
+    
+    var bucketName = _config.s3.BUCKET_NAME;
+    var bucketRegion = _config.s3.REGION;
+    var IdentityPoolId = _config.s3.IDENTITY_POOL_ID;
+    AWS.config.update({
+            region: bucketRegion,
+            credentials: new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: IdentityPoolId
+            })
+        }); 
+    function addPhoto() {
+        
+        var s3 = new AWS.S3({
+        apiVersion: '2006-03-01',
+        params: {Bucket: bucketName}
+        });
+        var files = document.getElementById('photoupload').files;
+        if (!files.length) {
+            return alert('Please choose a file to upload first.');
+        }
+        var file = files[0];
+        var photoKey = file.name;
+        s3.upload({
+            Key: photoKey,
+            Body: file,
+            ACL: 'public-read'
+        }, function(err, data) {
+            if (err) {
+            return alert('There was an error uploading your photo: ', err.message);
+            }
+            alert('Successfully uploaded photo.'+ data.Location);
+            console.log(data);
+        });
+    }
+  </script>
+</html>
