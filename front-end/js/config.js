@@ -6,5 +6,10 @@ window._config = {
         // Add indentity poolID
         
     },
+    s3: {
+        BUCKET_NAME: 'web-test-avatar',
+        REGION: 'ap-northeast-1',
+        IDENTITY_POOL_ID: 'ap-northeast-1:559a80d5-f29f-4dfd-9eb7-6bbce6fae5ac'
+    }
 };
 
