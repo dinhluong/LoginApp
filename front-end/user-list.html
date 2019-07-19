@@ -1,36 +1,48 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-	 <!--Cognito JavaScript-->
-	<script src="js/amazon-cognito-identity.min.js"></script>  
-	<script src="js/config.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-		<!-- <link rel="stylesheet" type="text/css" href="css/signin.css"> -->
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">	
-  </head>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Bootstrap 4 Responsive Table</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<link href="https://unpkg.com/tabulator-tables@4.2.7/dist/css/tabulator.min.css" rel="stylesheet">
+<script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.2.7/dist/js/tabulator.min.js"></script>
 
-  <body>
-	<div class="container">
-      <div>
-        <h2>User List</h2>
-		<button type="button" class="button" onclick="signOut()">Sign out</button>
-      </div>
-	
-	<div>
+<!--Cognito JavaScript-->
+<script src="js/amazon-cognito-identity.min.js"></script>  
+<script src="js/config.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<style type="text/css">
+    .table-responsive .tabulator-row table{
+    vertical-align: middle;
+    border-collapse:collapse;
+    }
 
-		<h4>Personal Information</h4>
-		
-		<br>
-		<div>
-			<label>Email <span>(Username)</span></label>
-		</div>
-		<div>
-			<label id="email_value"></label>
-		</div>
-		<img class="img-rounded" id="avatar">
-    </div>
+    .table-responsive .tabulator-row table img{
+        border:2px solid #ccc;
+    }
 
+    .table-responsive .tabulator-row table tr td{
+        border:none;
+    }
+
+    .table-responsive .tabulator-row table tr td:first-of-type{
+        width:60px;
+    }
+
+    .table-responsive .tabulator-row table tr td div{
+        padding:5px;
+    }
+</style>
+</head>
+<body>
+    <h2>User List</h2>
+    <div class="table-responsive">
+    </div>    
     <script>
 	var data = { 
 		UserPoolId : _config.cognito.userPoolId,
@@ -58,9 +70,9 @@
 			});			
 			
         });
-	}
-	$.ajax({
-                    url:'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users/User001',
+    }
+    $.ajax({
+                    url:'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users',
 					type:'GET',
 					// crossDomain: true,
 					// type: 'json',
@@ -72,20 +84,24 @@
                 })
                 // Ajaxリクエストが成功した時発動
                 .done( (data) => {
-					$('#avatar').attr("src", data.AvatarUrl);
-					$('#email_value').html(data.Email);
                     console.log(data);
+                    var table = new Tabulator(".table-responsive", {
+                    layout:"fitColumns",
+                    data:data, //set initial table data
+                    columns:[
+                        {title:"Name", field:"UserID"},
+                        {title:"Mail", field:"Email"},
+                        {title:"Role", field:"Role"},
+                        {title:"Avatar", field:"AvatarUrl"},
+                    ],
+                });
                 })
                 // Ajaxリクエストが失敗した時発動
                 .fail( (data) => {
                     $('#email_value').html(data);
                     console.log(data);
                 });
-                // Ajaxリクエストが成功・失敗どちらでも発動
-                // .always( (data) => {
-
-                // });
-}
+    }
 	function signOut(){
 	    if (cognitoUser != null) {
           cognitoUser.signOut();

@@ -15,9 +15,9 @@ import (
 
 // User type is a profile user.
 type User struct {
-	UserID string
-	Email  string
-	// UserName  string
+	UserID    string
+	Email     string
+	Role      string
 	AvatarUrl string
 }
 
