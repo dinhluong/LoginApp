@@ -5,7 +5,9 @@
 	 <!--Cognito JavaScript-->
 	<script src="js/amazon-cognito-identity.min.js"></script>  
 	<script src="js/config.js"></script>
-	<link rel="stylesheet" type="text/css" href="css/signin.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<!-- <link rel="stylesheet" type="text/css" href="css/signin.css"> -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">	
   </head>
 
   <body>
@@ -26,7 +28,7 @@
 		<div>
 			<label id="email_value"></label>
 		</div>
-		
+		<img class="img-rounded" id="avatar">
     </div>
 
     <script>
@@ -52,11 +54,37 @@
 					return;
 				}
 				console.log(result);
-				document.getElementById("email_value").innerHTML = result[2].getValue();	
+				// document.getElementById("email_value").innerHTML = result[2].getValue();	
 			});			
 			
         });
-    }
+	}
+	$.ajax({
+                    url:'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users/User001',
+					type:'GET',
+					// crossDomain: true,
+					// type: 'json',
+					// headers: {  'Access-Control-Allow-Origin': '*' },
+                    // data:{
+                        // 'userid':$('#userid').val(),
+                        // 'passward':$('#passward').val()
+                    // }
+                })
+                // Ajaxリクエストが成功した時発動
+                .done( (data) => {
+					$('#avatar').attr("src", data.AvatarUrl);
+					$('#email_value').html(data.Email);
+                    console.log(data);
+                })
+                // Ajaxリクエストが失敗した時発動
+                .fail( (data) => {
+                    $('#email_value').html(data);
+                    console.log(data);
+                });
+                // Ajaxリクエストが成功・失敗どちらでも発動
+                // .always( (data) => {
+
+                // });
 }
 	function signOut(){
 	    if (cognitoUser != null) {

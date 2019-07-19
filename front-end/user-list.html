@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+	 <!--Cognito JavaScript-->
+	<script src="js/amazon-cognito-identity.min.js"></script>  
+	<script src="js/config.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+		<!-- <link rel="stylesheet" type="text/css" href="css/signin.css"> -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">	
+  </head>
+
+  <body>
+	<div class="container">
+      <div>
+        <h2>User List</h2>
+		<button type="button" class="button" onclick="signOut()">Sign out</button>
+      </div>
+	
+	<div>
+
+		<h4>Personal Information</h4>
+		
+		<br>
+		<div>
+			<label>Email <span>(Username)</span></label>
+		</div>
+		<div>
+			<label id="email_value"></label>
+		</div>
+		<img class="img-rounded" id="avatar">
+    </div>
+
+    <script>
+	var data = { 
+		UserPoolId : _config.cognito.userPoolId,
+        ClientId : _config.cognito.clientId
+    };
+    var userPool = new AmazonCognitoIdentity.CognitoUserPool(data);
+    var cognitoUser = userPool.getCurrentUser();
+	
+	window.onload = function(){
+    if (cognitoUser != null) {
+        cognitoUser.getSession(function(err, session) {
+            if (err) {
+                alert(err);
+                return;
+            }
+            console.log('session validity: ' + session.isValid());
+			//Set the profile info
+			cognitoUser.getUserAttributes(function(err, result) {
+				if (err) {
+					console.log(err);
+					return;
+				}
+				console.log(result);
+				// document.getElementById("email_value").innerHTML = result[2].getValue();	
+			});			
+			
+        });
+	}
+	$.ajax({
+                    url:'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users/User001',
+					type:'GET',
+					// crossDomain: true,
+					// type: 'json',
+					// headers: {  'Access-Control-Allow-Origin': '*' },
+                    // data:{
+                        // 'userid':$('#userid').val(),
+                        // 'passward':$('#passward').val()
+                    // }
+                })
+                // Ajaxリクエストが成功した時発動
+                .done( (data) => {
+					$('#avatar').attr("src", data.AvatarUrl);
+					$('#email_value').html(data.Email);
+                    console.log(data);
+                })
+                // Ajaxリクエストが失敗した時発動
+                .fail( (data) => {
+                    $('#email_value').html(data);
+                    console.log(data);
+                });
+                // Ajaxリクエストが成功・失敗どちらでも発動
+                // .always( (data) => {
+
+                // });
+}
+	function signOut(){
+	    if (cognitoUser != null) {
+          cognitoUser.signOut();
+		  window.location.href = "signout.html";
+        }
+	}
+    </script>
+  </body>
+</html>

@@ -5,11 +5,13 @@
     <meta charset="utf-8">
 
 	<!-- Javascript SDKs-->
-	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script> 
+	<!-- <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>  -->
 	<script src="js/amazon-cognito-auth.min.js"></script>
 	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script> 
 	<script src="js/amazon-cognito-identity.min.js"></script>   
 	<script src="js/config.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/signin.css">
 
   </head>
@@ -65,8 +67,9 @@
 	cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: function (result) {
 			var accessToken = result.getAccessToken().getJwtToken();
-			console.log(accessToken);
+			
 			//Go to profile page
+			document.cookie = "token=accessToken";
 			window.location.href = "profile.html";
 			
         },

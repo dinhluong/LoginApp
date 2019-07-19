@@ -15,8 +15,9 @@ import (
 
 // User type is a profile user.
 type User struct {
-	UserID    string
-	UserName  string
+	UserID string
+	Email  string
+	// UserName  string
 	AvatarUrl string
 }
 
@@ -32,48 +33,52 @@ func ContextHandler(ctx context.Context, request events.APIGatewayProxyRequest) 
 	svc := dynamodb.New(sess)
 	tableName := "Users"
 
-	if request.HTTPMethod == "GET" {
-		UserID := request.PathParameters["UserID"]
+	// if request.HTTPMethod == "GET" {
+	UserID := request.PathParameters["UserID"]
 
-		result, err := svc.GetItem(&dynamodb.GetItemInput{
-			TableName: aws.String(tableName),
-			Key: map[string]*dynamodb.AttributeValue{
-				"UserID": {
-					S: aws.String(UserID),
-				},
+	result, err := svc.GetItem(&dynamodb.GetItemInput{
+		TableName: aws.String(tableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"UserID": {
+				S: aws.String(UserID),
 			},
-		})
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-		item := User{}
-
-		err = dynamodbattribute.UnmarshalMap(result.Item, &item)
-		if err != nil {
-			mess := fmt.Sprintf("Failed to unmarshal Record, %v", err)
-			return &events.APIGatewayProxyResponse{Body: mess, StatusCode: 500}, nil
-		}
-
-		if item.UserID == "" {
-			fmt.Println("Could not find '" + UserID + "'")
-		}
-		itemData, _ := json.Marshal(item)
-		return &events.APIGatewayProxyResponse{Body: string(itemData), StatusCode: 200}, nil
+		},
+	})
+	if err != nil {
+		fmt.Println(err.Error())
 	}
-	if request.HTTPMethod == "PUT" {
-		user := new(User)
-		user.UserID = request.PathParameters["UserID"]
-		user.UserName = request.QueryStringParameters["UserName"]
-		user.AvatarUrl = request.QueryStringParameters["AvatarUrl"]
-		input := &dynamodb.UpdateItemInput{
-			ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
-				":r":{
-					N: aws.String(user.UserName)
-				}
-			}
-		}
+	item := User{}
+
+	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
+	if err != nil {
+		mess := fmt.Sprintf("Failed to unmarshal Record, %v", err)
+		return &events.APIGatewayProxyResponse{Body: mess, StatusCode: 500}, nil
 	}
-	return nil, nil
+
+	if item.UserID == "" {
+		fmt.Println("Could not find '" + UserID + "'")
+	}
+	itemData, _ := json.Marshal(item)
+	headers := map[string]string{"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}
+	return &events.APIGatewayProxyResponse{
+		Body:       string(itemData),
+		Headers:    headers,
+		StatusCode: 200}, nil
+	// }
+	// if request.HTTPMethod == "PUT" {
+	// 	user := new(User)
+	// 	user.UserID = request.PathParameters["UserID"]
+	// 	user.UserName = request.QueryStringParameters["UserName"]
+	// 	user.AvatarUrl = request.QueryStringParameters["AvatarUrl"]
+	// 	input := &dynamodb.UpdateItemInput{
+	// 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+	// 			":r":{
+	// 				N: aws.String(user.UserName)
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// return nil, nil
 }
 func main() {
 	lambda.Start(ContextHandler)
