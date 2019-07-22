@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -11,8 +12,15 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-
 )
+
+// User type is a profile user.
+type User struct {
+	UserID    string
+	Email     string
+	Role      string
+	AvatarUrl string
+}
 
 // ContextHandler proccess get User Info
 func ContextHandler(ctx context.Context, request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
@@ -24,24 +32,37 @@ func ContextHandler(ctx context.Context, request events.APIGatewayProxyRequest) 
 
 	// Create DynamoDB client
 	svc := dynamodb.New(sess)
-	tableName := "Users"
-	
+	tableName := os.Getenv("USER_TABLE")
+
 	// if request.HTTPMethod == "GET" {
-	params := &dynamodb.ScanInput{
+	user := User{}
+	user.UserID = request.QueryStringParameters["UserID"]
+	user.Email = request.QueryStringParameters["Email"]
+	user.AvatarUrl = request.QueryStringParameters["AvatarUrl"]
+
+	result, err := svc.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
-	}
-	result, err := svc.Scan(params)
+		Key: map[string]*dynamodb.AttributeValue{
+			"UserID": {
+				S: aws.String(UserID),
+			},
+		},
+	})
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-	items := []User{}
-	err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &items)
+	item := User{}
+
+	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
 	if err != nil {
 		mess := fmt.Sprintf("Failed to unmarshal Record, %v", err)
 		return &events.APIGatewayProxyResponse{Body: mess, StatusCode: 500}, nil
 	}
 
-	itemData, _ := json.Marshal(items)
+	if item.UserID == "" {
+		fmt.Println("Could not find '" + UserID + "'")
+	}
+	itemData, _ := json.Marshal(item)
 	headers := map[string]string{"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}
 	return &events.APIGatewayProxyResponse{
 		Body:       string(itemData),
