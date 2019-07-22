@@ -9,31 +9,32 @@
 		<!-- <link rel="stylesheet" type="text/css" href="css/signin.css"> -->
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">	
   </head>
+  <style type="text/css">
 
+</style>
   <body>
 	<div class="container">
       <div>
         <h2>User Profile</h2>
-		<button type="button" class="button" onclick="signOut()">Sign out</button>
+		<button type="button" class="button float-right" onclick="signOut()">Sign out</button>
       </div>
-	
+	<style type="text/css">
+	.card {
+        margin: 0 auto; /* Added */
+        float: none; /* Added */
+        margin-bottom: 10px; /* Added */
+		}
+	</style>
 	<div>
-
-		<h4>Personal Information</h4>
-		
-		<br>
-		<div>
-			<label>Email</label>
-		</div>
-		<div>
-			<label id="email_value"></label>
-		</div>
-		<div>
-				<label id="role"></label>
+		<div class="card" style="width: 25rem;">
+			<img class="card-img-top" src="..." id="avatar">
+			<div class="card-body">
+			  <h5 class="card-title" id="email_value">Card title</h5>
+			  <p class="card-text" id="role">Role</p>
+			  <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
 			</div>
-		<img class="img-rounded" id="avatar">
+		</div>	
     </div>
-
     <script>
 	var data = { 
 		UserPoolId : _config.cognito.userPoolId,

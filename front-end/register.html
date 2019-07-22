@@ -21,10 +21,26 @@
     <input type="email" class="form-control" id="emailInputRegister" placeholder="Email" pattern=".*" required>
 	<input type="password" class="form-control" id="passwordInputRegister" placeholder="Password" pattern=".*" required>
     <input type="password" class="form-control" id="confirmationpassword" placeholder="Confirm Password" pattern=".*" required>
+	<br>
+	<input id="photoupload" type="file" accept="image/*">
+	<button id="addphoto" onclick="addPhoto()">
+	  Add Photo
+	</button>
+	<br>
+	
 	<button id="mainbutton" class="btn btn-lg btn-primary btn-block" type="button" onclick="registerButton() " >Register</button>
-
 	<script>
-
+		// For upload image config
+		var bucketName = _config.s3.BUCKET_NAME;
+		var bucketRegion = _config.s3.REGION;
+		var IdentityPoolId = _config.s3.IDENTITY_POOL_ID;
+		AWS.config.update({
+				region: bucketRegion,
+				credentials: new AWS.CognitoIdentityCredentials({
+					IdentityPoolId: IdentityPoolId
+				})
+			}); 
+		// For regist data config
 		var username;
 		var password;
 		var personalname;
@@ -32,7 +48,7 @@
 			
 	  function registerButton() {
 		
-		personalnamename =  document.getElementById("personalnameRegister").value;	
+		personalname =  document.getElementById("personalnameRegister").value;	
 		username = document.getElementById("emailInputRegister").value;
 		
 		if (document.getElementById("passwordInputRegister").value != document.getElementById("confirmationpassword").value) {
@@ -73,13 +89,54 @@
 				return;
 			}
 			cognitoUser = result.user;
+			// Get sub to make an Id in dynamodb
+			userSub = result.userSub;
+			// Upload images to s3
+			registDataToDynamoDB(userSub,username)
 			console.log('user name is ' + cognitoUser.getUsername());
-			//change elements of page
 			document.getElementById("titleheader").innerHTML = "Check your email for a verification link";
 			
 		});
 	  }
-
+	// Upload profile to S3
+	function registDataToDynamoDB(userId, email){
+		// Upload image first
+		var s3 = new AWS.S3({
+        apiVersion: '2006-03-01',
+        params: {Bucket: bucketName}
+        });
+        var files = document.getElementById('photoupload').files;
+        if (!files.length) {
+            return alert('Please choose a file to upload first.');
+        }
+        var file = files[0];
+        var photoKey = file.name;
+        s3.upload({
+            Key: photoKey,
+            Body: file,
+            ACL: 'public-read'
+        }, function(err, data) {
+            if (err) {
+            return alert('There was an error uploading your photo: ', err.message);
+			}
+			$.ajax({
+				url: _config.api.users,
+					type:'POST',
+					crossDomain: true,
+					type: 'json',
+					headers: {  'Access-Control-Allow-Origin': '*' },
+                    data:{
+                        'UserID': userId,
+						'Email': email,
+						'AvatarUrl': data.Location
+                    } 
+			}).done((data) => {
+				document.getElementById("titleheader").innerHTML = "Successful regist data to dynamodb";
+			}).fail((err) =>{
+				return alert('There was an error while regist your data', err.message);
+			});
+        });
+	} 
 	</script>
  
  </body>

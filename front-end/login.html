@@ -67,13 +67,35 @@
 	cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: function (result) {
 			var accessToken = result.getAccessToken().getJwtToken();
-			
 			//Go to profile page
 			document.cookie = "token=accessToken";
-			window.location.href = "UploadImage.html";
-			
+			$.ajax({
+                    url:'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users',
+					type:'GET',
+					// crossDomain: true,
+					// type: 'json',
+					// headers: {  'Access-Control-Allow-Origin': '*' },
+                    data:{
+						// 'userid':$('#userid').val(),
+						'Authorization':accessToken,
+                        'Email':$('#inputUsername').val()
+                    }
+                })
+                // Ajaxリクエストが成功した時発動
+                .done( (data) => {
+                    console.log(data);
+					if(data.Role =="admin")
+					{
+						window.location.href="user-list.html";
+					}
+					else
+					window.location.href="profile.html";
+                })
+                // Ajaxリクエストが失敗した時発動
+                .fail( (err) => {
+                    console.log(err);
+                });
         },
-
         onFailure: function(err) {
             alert(err.message || JSON.stringify(err));
         },
