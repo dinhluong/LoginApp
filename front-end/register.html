@@ -24,8 +24,7 @@
 	<br>
 	<input id="photoupload" type="file" accept="image/*">
 	<br>
-	
-	<button id="mainbutton" class="btn btn-lg btn-primary btn-block" type="button" onclick="registerButton() " >Register</button>
+	<button id="mainbutton" class="btn btn-lg btn-primary btn-block" type="button" onclick="registerButton()">Register</button>
 	<script>
 		// For upload image config
 		var bucketName = _config.s3.BUCKET_NAME;
@@ -116,22 +115,26 @@
             if (err) {
             return alert('There was an error uploading your photo: ', err.message);
 			}
-			fileLocation = res.Location;
+			var ajaxData = {
+				"UserID": userId,
+				"Email": email,
+				"AvatarUrl": res.Location
+    		}
 			$.ajax({
 				url: _config.api.users,
-					type:"POST",
-                    data: {
-                        "UserID": userId,
-						"Email": email,
-						"AvatarUrl": fileLocation
-                    } 
-			}).done((data) => {
-				document.getElementById("titleheader").innerHTML = "Successful regist data to dynamodb";
-			}).fail((err) =>{
-				return alert('There was an error while regist your data', err.message);
+				type:"POST",
+				data: JSON.stringify(ajaxData),
+				headers: { "Accept":"application/json", "Content-Type":"application/json" },
+    			dataType: "text",
+				success: function() {
+					return alert('Success to register data');
+				},
+				error: function(err){
+					return alert('There was an error while regist your data', err.message);
+				}
 			});
-        });
-	} 
+	});
+	}
 	</script>
  </body>
 </html>
