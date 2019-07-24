@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -31,7 +32,7 @@ func ContextHandler(ctx context.Context, request events.APIGatewayProxyRequest) 
 
 	// Create DynamoDB client
 	svc := dynamodb.New(sess)
-	tableName := "Users"
+	tableName := os.Getenv("USER_TABLE")
 
 	// if request.HTTPMethod == "GET" {
 	params := &dynamodb.ScanInput{

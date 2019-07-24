@@ -115,20 +115,18 @@
             Key: photoKey,
             Body: file,
             ACL: 'public-read'
-        }, function(err, data) {
+        }, function(err, res) {
             if (err) {
             return alert('There was an error uploading your photo: ', err.message);
 			}
+			fileLocation = res.Location;
 			$.ajax({
 				url: _config.api.users,
-					type:'POST',
-					crossDomain: true,
-					type: 'json',
-					headers: {  'Access-Control-Allow-Origin': '*' },
-                    data:{
-                        'UserID': userId,
-						'Email': email,
-						'AvatarUrl': data.Location
+					type:"POST",
+                    data: {
+                        "UserID": userId,
+						"Email": email,
+						"AvatarUrl": fileLocation
                     } 
 			}).done((data) => {
 				document.getElementById("titleheader").innerHTML = "Successful regist data to dynamodb";
