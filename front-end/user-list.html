@@ -27,6 +27,7 @@
 </style>
 </head>
 <body>
+    <div class="container">
     <h2>User List</h2>
     <div class="table-responsive">
             <table class="table" id="tblUser">
@@ -40,10 +41,10 @@
                       </tr>
                     </thead>
                     <tbody>
-                      
                     </tbody>
                   </table>   
     </div>    
+    </div>
     <script>
 	var data = { 
 		UserPoolId : _config.cognito.userPoolId,
@@ -74,30 +75,13 @@
     }
     $.ajax({
                     url:'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users',
-					type:'GET',
-					// crossDomain: true,
-					// type: 'json',
-					// headers: {  'Access-Control-Allow-Origin': '*' },
-                    // data:{
-                        // 'userid':$('#userid').val(),
-                        // 'passward':$('#passward').val()
-                    // }
+					type:'GET'
                 })
                 // Ajaxリクエストが成功した時発動
                 .done( (data) => {
                     console.log(data);
-                    // var table = new Tabulator(".table-responsive", {
-                    // layout:"fitColumns",
-                    // data:data, //set initial table data
-                    // columns:[
-                    //     {title:"Name", field:"UserID"},
-                    //     {title:"Mail", field:"Email"},
-                    //     {title:"Role", field:"Role"},
-                    //     {title:"Avatar", field:"AvatarUrl"},
-                    // ],
-                // });
                     $.each(data, function(i, obj){
-                        var newRowContent = "<tr><td>"+obj.UserID+"</td><td>"+obj.Email+"</td><td>"+obj.Role+"</td><td><img src="+obj.AvatarUrl+"></td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"deleteUser()\">Delete</button></td></tr>";
+                        var newRowContent = "<tr><td>"+obj.UserID+"</td><td>"+obj.Email+"</td><td>"+obj.Role+"</td><td><img src="+obj.AvatarUrl+"></td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"deleteUser('"+obj.UserID+"')\">Delete</button></td></tr>";
                         $("#tblUser tbody").append(newRowContent);  
 
                     })
@@ -113,7 +97,27 @@
           cognitoUser.signOut();
 		  window.location.href = "signout.html";
         }
-	}
+    }
+    function deleteUser(userID){
+        console.log("Delete user: "+userID);
+        var ajaxData = {
+				"UserID": userID,
+    		}
+			$.ajax({
+				url: _config.api.users,
+				type:"DELETE",
+				data: JSON.stringify(ajaxData),
+				headers: { "Accept":"application/json", "Content-Type":"application/json", "Access-Control-Allow-Methods":"GET, PUT, POST, DELETE, HEAD" },
+    			dataType: "text",
+				success: function() {
+                    alert('Success to delete data');
+                    location.reload();
+				},
+				error: function(err){
+					return alert('There was an error while delete user', err.message);
+				}
+			});
+    }
     </script>
   </body>
 </html>

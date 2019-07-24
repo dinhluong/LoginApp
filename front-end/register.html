@@ -9,22 +9,35 @@
   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script> 
   <script src="js/amazon-cognito-identity.min.js"></script>  
   <script src="js/config.js"></script>
- 
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">	
   </head>
-
-	
   <body>
-
+		<div class="container">
     <h1 class="h3 mb-3 font-weight-normal" id="titleheader">Register an Account</h1>
-	
+	<div class="form-group">
+	<label for="usr">Name:</label>
 	<input type="personalname" class="form-control" id="personalnameRegister" placeholder="Name" pattern=".*" required>
-    <input type="email" class="form-control" id="emailInputRegister" placeholder="Email" pattern=".*" required>
+	</div>
+	<div class="form-group">
+	<label for="pwd">Email:</label>
+	<input type="email" class="form-control" id="emailInputRegister" placeholder="Email" pattern=".*" required>
+	</div>
+	<div class="form-group">
+	<label for="pwd">Password:</label>
 	<input type="password" class="form-control" id="passwordInputRegister" placeholder="Password" pattern=".*" required>
+	</div>
+	<div class="form-group">
+	<label for="pwd">Re enter password:</label>
     <input type="password" class="form-control" id="confirmationpassword" placeholder="Confirm Password" pattern=".*" required>
-	<br>
-	<input id="photoupload" type="file" accept="image/*">
-	<br>
+	</div>	
+	<div class="form-group">
+	<label for="pwd">Choose avatar</label>
+	<input id="photoupload" class="form-control-file border" type="file" accept="image/*">
+	</div>
+	<div class="form-group">
 	<button id="mainbutton" class="btn btn-lg btn-primary btn-block" type="button" onclick="registerButton()">Register</button>
+	</div>	
+	</div>	
 	<script>
 		// For upload image config
 		var bucketName = _config.s3.BUCKET_NAME;
