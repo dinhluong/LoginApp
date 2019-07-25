@@ -73,8 +73,7 @@
 			$.ajax({
                     url: _config.api.user+"?Email="+authenticationData.Username,
 					type:'GET',
-					dataType: 'json',
-					headers: {"Access-Control-Allow-Origin": "*"}
+					dataType: 'json'
                 })
                 // Ajaxリクエストが成功した時発動
                 .done( (data) => {
