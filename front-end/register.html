@@ -130,7 +130,7 @@
 			}
 			var ajaxData = {
 				"UserID": userId,
-				"Email": email,
+				"Email": email.toLowerCase(),
 				"AvatarUrl": res.Location
     		}
 			$.ajax({

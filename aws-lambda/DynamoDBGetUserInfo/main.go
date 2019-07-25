@@ -39,6 +39,7 @@ func ContextHandler(ctx context.Context, request events.APIGatewayProxyRequest) 
 
 	if UserID == "" {
 		email := request.QueryStringParameters["Email"]
+		fmt.Printf("Got email: " + email)
 		var queryInput = &dynamodb.QueryInput{
 			Limit:     aws.Int64(1),
 			TableName: aws.String(tableName),
@@ -59,17 +60,17 @@ func ContextHandler(ctx context.Context, request events.APIGatewayProxyRequest) 
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		item := User{}
-		err = dynamodbattribute.UnmarshalMap(result.Items[0], &item)
+		item := []User{}
+		err = dynamodbattribute.UnmarshalListOfMaps(result.Items, &item)
 		if err != nil {
 			mess := fmt.Sprintf("Failed to unmarshal Record, %v", err)
 			return &events.APIGatewayProxyResponse{Body: mess, StatusCode: 500}, nil
 		}
 
-		if item.Email == "" {
-			fmt.Println("Could not find '" + email + "'")
-		}
-		itemData, err := json.Marshal(item)
+		// if item[0].Email == "" {
+		// 	fmt.Println("Could not find '" + email + "'")
+		// }
+		itemData, err := json.Marshal(&item[0])
 		if err != nil {
 			mess := fmt.Sprintf("Failed to marshal Record, %v", err)
 			return &events.APIGatewayProxyResponse{Body: mess, StatusCode: 500}, nil

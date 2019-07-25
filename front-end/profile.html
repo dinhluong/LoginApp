@@ -27,7 +27,7 @@
 	</style>
 	<div>
 		<div class="card" style="width: 25rem;">
-			<img class="card-img-top" src="..." id="avatar">
+			<img class="card-img-top" src="" id="avatar">
 			<div class="card-body">
 			  <h5 class="card-title" id="email_value">Card title</h5>
 			  <p class="card-text" id="role">Role</p>
@@ -58,40 +58,27 @@
 					return;
 				}
 				console.log(result);
-				// document.getElementById("email_value").innerHTML = result[2].getValue();	
-			});			
-			
-        });
-	}
-	$.ajax({
-                    url:'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users/User001',
+				$.ajax({
+                    url: _config.api.user+"?UserID="+result[0].getValue(),
 					type:'GET',
-					// crossDomain: true,
-					// type: 'json',
-					// headers: {  'Access-Control-Allow-Origin': '*' },
-                    // data:{
-                        // 'userid':$('#userid').val(),
-                        // 'passward':$('#passward').val()
-                    // }
-                })
-                // Ajaxリクエストが成功した時発動
-                .done( (data) => {
+					success: function(data) {
 					$('#avatar').attr("src", data.AvatarUrl);
 					$('#email_value').html(data.Email);
 					$('#role').html(data.Role);
 					
-                    console.log(data);
-                })
-                // Ajaxリクエストが失敗した時発動
-                .fail( (data) => {
+					console.log(data);
+					},
+					fail(data) {
                     $('#email_value').html(data);
                     console.log(data);
-                });
-                // Ajaxリクエストが成功・失敗どちらでも発動
-                // .always( (data) => {
-
-                // });
-}
+					}
+				});
+				// document.getElementById("email_value").innerHTML = result[2].getValue();	
+			});			
+			
+        });
+		}
+	}
 	function signOut(){
 	    if (cognitoUser != null) {
           cognitoUser.signOut();

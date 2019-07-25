@@ -72,8 +72,7 @@
 			
 			$.ajax({
                     url: _config.api.user+"?Email="+authenticationData.Username,
-					type:'GET',
-					dataType: 'json'
+					type:'GET'
                 })
                 // Ajaxリクエストが成功した時発動
                 .done( (data) => {
