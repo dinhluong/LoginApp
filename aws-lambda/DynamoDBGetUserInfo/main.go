@@ -35,11 +35,50 @@ func ContextHandler(ctx context.Context, request events.APIGatewayProxyRequest) 
 	tableName := os.Getenv("USER_TABLE")
 
 	// if request.HTTPMethod == "GET" {
-	UserID := request.PathParameters["UserID"]
-	if !UserID {
-		user := User{}
-		err := json.Unmarshal([]byte(request.Body), &user)
-		UserID = user.UserID
+	UserID := request.QueryStringParameters["UserID"]
+
+	if UserID == "" {
+		email := request.QueryStringParameters["Email"]
+		var queryInput = &dynamodb.QueryInput{
+			Limit:     aws.Int64(1),
+			TableName: aws.String(tableName),
+			IndexName: aws.String("Email-index"),
+			KeyConditions: map[string]*dynamodb.Condition{
+				"Email": {
+					ComparisonOperator: aws.String("EQ"),
+					AttributeValueList: []*dynamodb.AttributeValue{
+						{
+							S: aws.String(email),
+						},
+					},
+				},
+			},
+		}
+		result, err := svc.Query(queryInput)
+
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		item := User{}
+		err = dynamodbattribute.UnmarshalMap(result.Items[0], &item)
+		if err != nil {
+			mess := fmt.Sprintf("Failed to unmarshal Record, %v", err)
+			return &events.APIGatewayProxyResponse{Body: mess, StatusCode: 500}, nil
+		}
+
+		if item.Email == "" {
+			fmt.Println("Could not find '" + email + "'")
+		}
+		itemData, err := json.Marshal(item)
+		if err != nil {
+			mess := fmt.Sprintf("Failed to marshal Record, %v", err)
+			return &events.APIGatewayProxyResponse{Body: mess, StatusCode: 500}, nil
+		}
+		headers := map[string]string{"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}
+		return &events.APIGatewayProxyResponse{
+			Body:       string(itemData),
+			Headers:    headers,
+			StatusCode: 200}, nil
 	}
 	result, err := svc.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(tableName),

@@ -12,7 +12,8 @@ window._config = {
         IDENTITY_POOL_ID: 'ap-northeast-1:559a80d5-f29f-4dfd-9eb7-6bbce6fae5ac'
     },
     api:{
-        users : 'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users'
+        users : 'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users',
+        user: 'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/user'
     }
 };
 

@@ -69,17 +69,12 @@
 			var accessToken = result.getAccessToken().getJwtToken();
 			//Go to profile page
 			document.cookie = "token=accessToken";
+			
 			$.ajax({
-                    url:'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users',
+                    url: _config.api.user+"?Email="+authenticationData.Username,
 					type:'GET',
-					// crossDomain: true,
-					// type: 'json',
-					// headers: {  'Access-Control-Allow-Origin': '*' },
-                    data:{
-						// 'userid':$('#userid').val(),
-						'Authorization':accessToken,
-                        'Email':$('#inputUsername').val()
-                    }
+					dataType: 'json',
+					headers: {"Access-Control-Allow-Origin": "*"}
                 })
                 // Ajaxリクエストが成功した時発動
                 .done( (data) => {

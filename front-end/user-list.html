@@ -74,23 +74,23 @@
         });
     }
     $.ajax({
-                    url:'https://oc1lgx4pq6.execute-api.ap-northeast-1.amazonaws.com/stagging/users',
-					type:'GET'
-                })
-                // Ajaxリクエストが成功した時発動
-                .done( (data) => {
-                    console.log(data);
-                    $.each(data, function(i, obj){
-                        var newRowContent = "<tr><td>"+obj.UserID+"</td><td>"+obj.Email+"</td><td>"+obj.Role+"</td><td><img src="+obj.AvatarUrl+"></td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"deleteUser('"+obj.UserID+"')\">Delete</button></td></tr>";
-                        $("#tblUser tbody").append(newRowContent);  
+        url: _config.api.users,
+        type:'GET'
+    })
+    // Ajaxリクエストが成功した時発動
+    .done( (data) => {
+        console.log(data);
+        $.each(data, function(i, obj){
+            var newRowContent = "<tr><td>"+obj.UserID+"</td><td>"+obj.Email+"</td><td>"+obj.Role+"</td><td><img src="+obj.AvatarUrl+"></td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"deleteUser('"+obj.UserID+"')\">Delete</button></td></tr>";
+            $("#tblUser tbody").append(newRowContent);  
 
-                    })
-                })
-                // Ajaxリクエストが失敗した時発動
-                .fail( (data) => {
-                    $('#email_value').html(data);
-                    console.log(data);
-                });
+        })
+    })
+    // Ajaxリクエストが失敗した時発動
+    .fail( (data) => {
+        $('#email_value').html(data);
+        console.log(data);
+    });
     }
 	function signOut(){
 	    if (cognitoUser != null) {
@@ -104,7 +104,7 @@
 				"UserID": userID,
     		}
 			$.ajax({
-				url: _config.api.users,
+				url: "https://tkhl0zr3gl.execute-api.ap-northeast-1.amazonaws.com/prod/authorized/common/deleteuser",
 				type:"DELETE",
 				data: JSON.stringify(ajaxData),
 				headers: { "Accept":"application/json", "Content-Type":"application/json", "Access-Control-Allow-Methods":"GET, PUT, POST, DELETE, HEAD" },
