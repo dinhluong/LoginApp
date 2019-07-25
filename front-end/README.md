@@ -1,5 +1,4 @@
-# AWS-Cognito-Tutorials
-Code from Cognito Youtube Tutorials (Youtube: Nikhil Rao)
+# AWS-Group5
 
 SDK's Needed
 ------------
