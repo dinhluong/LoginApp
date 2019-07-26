@@ -67,12 +67,14 @@
 	cognitoUser.authenticateUser(authenticationDetails, {
         onSuccess: function (result) {
 			var accessToken = result.getAccessToken().getJwtToken();
-			//Go to profile page
-			document.cookie = "token=accessToken";
+			var idToken = result.getIdToken().getJwtToken();
 			
 			$.ajax({
-                    url: _config.api.user+"?Email="+authenticationData.Username,
-					type:'GET'
+                    url: _config.api.prod.authorized.common.user+"?Email="+authenticationData.Username,
+					type:'GET',
+					headers:{
+						"Authorization": idToken
+					}
                 })
                 // Ajaxリクエストが成功した時発動
                 .done( (data) => {

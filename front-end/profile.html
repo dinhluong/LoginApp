@@ -29,11 +29,19 @@
 		<div class="card" style="width: 25rem;">
 			<img class="card-img-top" src="" id="avatar">
 			<div class="card-body">
-			  <h5 class="card-title" id="email_value">Card title</h5>
-			  <p class="card-text" id="role">Role</p>
-			  <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+			<h5 class="card-title" id="email_value">Card title</h5>
+			<p class="card-text" id="role">Role</p>
+			<p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+			<div class="form-group">
+			<label for="pwd">Upload new avatar</label>
+			<input id="photoupload" class="form-control-file border" type="file" accept="image/*">
 			</div>
-		</div>	
+			<div class="form-group">
+			<button id="mainbutton" class="btn btn-lg btn-primary btn-block" type="button" onclick="update()">Update</button>
+			</div>
+			</div>
+		</div>
+				
     </div>
     <script>
 	var data = { 
@@ -58,9 +66,13 @@
 					return;
 				}
 				console.log(result);
+				var idToken = session.getIdToken().getJwtToken();
 				$.ajax({
-                    url: _config.api.user+"?UserID="+result[0].getValue(),
+                    url: _config.api.prod.authorized.common.user+"?UserID="+result[0].getValue(),
 					type:'GET',
+					headers:{
+						"Authorization": idToken
+					},
 					success: function(data) {
 					$('#avatar').attr("src", data.AvatarUrl);
 					$('#email_value').html(data.Email);
@@ -84,6 +96,11 @@
           cognitoUser.signOut();
 		  window.location.href = "signout.html";
         }
+	}
+	function update(){
+		var files = document.getElementById('photoupload').files;
+        var file = files[0];
+        var photoKey = file.name;
 	}
     </script>
   </body>

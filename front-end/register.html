@@ -134,13 +134,14 @@
 				"AvatarUrl": res.Location
     		}
 			$.ajax({
-				url: _config.api.users,
+				url: _config.api.prod.unauthorized.user,
 				type:"POST",
 				data: JSON.stringify(ajaxData),
 				headers: { "Accept":"application/json", "Content-Type":"application/json" },
     			dataType: "text",
 				success: function() {
-					return alert('Success to register data');
+					alert('Success to register data');
+					window.location.href="login.html";
 				},
 				error: function(err){
 					return alert('There was an error while regist your data', err.message);

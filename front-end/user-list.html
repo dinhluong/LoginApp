@@ -29,6 +29,7 @@
 <body>
     <div class="container">
     <h2>User List</h2>
+    <button type="button" class="button float-right" onclick="signOut()">Sign out</button>
     <div class="table-responsive">
             <table class="table" id="tblUser">
                     <thead>
@@ -37,7 +38,8 @@
                         <th>Email</th>
                         <th>Role</th>
                         <th>Avatar</th>
-                        <th>Action</th>
+                        <th></th>
+                        <th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -52,7 +54,7 @@
     };
     var userPool = new AmazonCognitoIdentity.CognitoUserPool(data);
     var cognitoUser = userPool.getCurrentUser();
-	
+	var idToken = "";
 	window.onload = function(){
     if (cognitoUser != null) {
         cognitoUser.getSession(function(err, session) {
@@ -68,29 +70,30 @@
 					return;
 				}
 				console.log(result);
-				// document.getElementById("email_value").innerHTML = result[2].getValue();	
+                idToken = session.getIdToken().getJwtToken();
+                $.ajax({
+                        url: _config.api.prod.authorized.admin.user,
+                        headers:{
+						"Authorization": idToken
+					    },
+                        type:'GET',
+                        success: function(data) {
+                            console.log(data);
+                            $.each(data, function(i, obj){
+                                var newRowContent = "<tr><td>"+obj.UserID+"</td><td>"+obj.Email+"</td><td>"+obj.Role+"</td><td><img src="+obj.AvatarUrl+"></td><td><button type=\"button\" class=\"btn btn-info\" onclick=\"makeAdmin('"+obj.UserID+"','"+obj.Email+"')\">Make Admin</button></td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"deleteUser('"+obj.UserID+"','"+obj.Email+"')\">Delete</button></td></tr>";
+                                $("#tblUser tbody").append(newRowContent);  
+
+                            })
+                        },
+                        fail: function(data){
+                        $('#email_value').html(data);
+                        console.log(data);
+                        }
+                });
 			});			
 			
-        });
-    }
-    $.ajax({
-        url: _config.api.users,
-        type:'GET'
-    })
-    // Ajaxリクエストが成功した時発動
-    .done( (data) => {
-        console.log(data);
-        $.each(data, function(i, obj){
-            var newRowContent = "<tr><td>"+obj.UserID+"</td><td>"+obj.Email+"</td><td>"+obj.Role+"</td><td><img src="+obj.AvatarUrl+"></td><td><button type=\"button\" class=\"btn btn-danger\" onclick=\"deleteUser('"+obj.UserID+"')\">Delete</button></td></tr>";
-            $("#tblUser tbody").append(newRowContent);  
-
-        })
-    })
-    // Ajaxリクエストが失敗した時発動
-    .fail( (data) => {
-        $('#email_value').html(data);
-        console.log(data);
-    });
+            });
+        }
     }
 	function signOut(){
 	    if (cognitoUser != null) {
@@ -98,25 +101,46 @@
 		  window.location.href = "signout.html";
         }
     }
-    function deleteUser(userID){
+    function deleteUser(userID, email){
         console.log("Delete user: "+userID);
         var ajaxData = {
-				"UserID": userID,
+                "UserID": userID,
+                "Email": email
     		}
-			$.ajax({
-				url: "https://tkhl0zr3gl.execute-api.ap-northeast-1.amazonaws.com/prod/authorized/common/deleteuser",
-				type:"DELETE",
-				data: JSON.stringify(ajaxData),
-				headers: { "Accept":"application/json", "Content-Type":"application/json", "Access-Control-Allow-Methods":"GET, PUT, POST, DELETE, HEAD" },
-    			dataType: "text",
-				success: function() {
+        $.ajax({
+            url: _config.api.prod.authorized.admin.user,
+            type:"DELETE",
+            data: JSON.stringify(ajaxData),
+            headers: { "Accept":"application/json", "Content-Type":"application/json", "Access-Control-Allow-Methods":"GET, PUT, POST, DELETE, HEAD" },
+            dataType: "text",
+            success: function() {
                     alert('Success to delete data');
-                    location.reload();
-				},
-				error: function(err){
-					return alert('There was an error while delete user', err.message);
-				}
-			});
+                    location.reload();       
+            },
+            error: function(err){
+                return alert('There was an error while delete user', err.message);
+            }
+        });
+        
+    }
+    function makeAdmin(userID, email){
+        var ajaxData = {
+                "UserID": userID,
+                "Email": email
+            }  
+        $.ajax({
+        url: _config.api.prod.authorized.admin.user,
+        type:"POST",
+        data: JSON.stringify(ajaxData),
+        headers: { "Accept":"application/json", "Content-Type":"application/json", "Authorization": idToken },
+        success: function() {
+                alert('Success to make admin');
+                location.reload();       
+        },
+        error: function(err){
+            return alert('There was an error while promote user to admin', err.message);
+        }
+    });   
     }
     </script>
   </body>
