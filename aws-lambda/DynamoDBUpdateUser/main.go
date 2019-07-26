@@ -50,27 +50,39 @@ func ContextHandler(ctx context.Context, request events.APIGatewayProxyRequest) 
 		os.Exit(1)
 	}
 
-	input := &dynamodb.DeleteItemInput{
-		Key: map[string]*dynamodb.AttributeValue{
-			"UserID": {
-				N: aws.String(user.UserID),
+	input := &dynamodb.UpdateItemInput{
+		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
+			":r": {
+				S: aws.String(user.AvatarUrl),
+			},
+			":u": {
+				S: aws.String(user.UserID),
 			},
 		},
+		ExpressionAttributeNames: map[string]*string{
+			"#d": aws.String("AvatarUrl"),
+		},
 		TableName: aws.String(tableName),
+		Key: map[string]*dynamodb.AttributeValue{
+			"UserID": {
+				S: aws.String(user.UserID),
+			},
+		},
+		ConditionExpression: aws.String("UserID = :u"),
+		UpdateExpression:    aws.String("set #d = :r"),
+		ReturnValues:        aws.String("UPDATED_NEW"),
 	}
 
-	_, err = svc.DeleteItem(input)
+	_, err = svc.UpdateItem(input)
 
 	if err != nil {
-		fmt.Println("Got error calling DeleteItem")
+		fmt.Println("Got error calling Update item")
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
-	message := "Deleted item from dynamodb"
 	headers := map[string]string{"Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept"}
 	return &events.APIGatewayProxyResponse{
-		Body:       message,
 		Headers:    headers,
 		StatusCode: 204}, nil
 

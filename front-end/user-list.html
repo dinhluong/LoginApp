@@ -111,8 +111,9 @@
             url: _config.api.prod.authorized.admin.user,
             type:"DELETE",
             data: JSON.stringify(ajaxData),
-            headers: { "Accept":"application/json", "Content-Type":"application/json", "Access-Control-Allow-Methods":"GET, PUT, POST, DELETE, HEAD" },
-            dataType: "text",
+            headers:{
+						"Authorization": idToken
+					    },
             success: function() {
                     alert('Success to delete data');
                     location.reload();       
@@ -132,7 +133,7 @@
         url: _config.api.prod.authorized.admin.user,
         type:"POST",
         data: JSON.stringify(ajaxData),
-        headers: { "Accept":"application/json", "Content-Type":"application/json", "Authorization": idToken },
+        headers: { "Authorization": idToken },
         success: function() {
                 alert('Success to make admin');
                 location.reload();       

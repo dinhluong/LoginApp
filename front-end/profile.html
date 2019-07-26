@@ -5,6 +5,7 @@
 	 <!--Cognito JavaScript-->
 	<script src="js/amazon-cognito-identity.min.js"></script>  
 	<script src="js/config.js"></script>
+	<script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script> 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 		<!-- <link rel="stylesheet" type="text/css" href="css/signin.css"> -->
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">	
@@ -29,6 +30,7 @@
 		<div class="card" style="width: 25rem;">
 			<img class="card-img-top" src="" id="avatar">
 			<div class="card-body">
+			<h5 class="card-title" id="id_value" style="display: none;"></h5>
 			<h5 class="card-title" id="email_value">Card title</h5>
 			<p class="card-text" id="role">Role</p>
 			<p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
@@ -50,7 +52,17 @@
     };
     var userPool = new AmazonCognitoIdentity.CognitoUserPool(data);
     var cognitoUser = userPool.getCurrentUser();
-	
+	// For upload image config
+	var bucketName = _config.s3.BUCKET_NAME;
+	var bucketRegion = _config.s3.REGION;
+	var IdentityPoolId = _config.s3.IDENTITY_POOL_ID;
+	AWS.config.update({
+			region: bucketRegion,
+			credentials: new AWS.CognitoIdentityCredentials({
+				IdentityPoolId: IdentityPoolId
+			})
+		}); 
+	var idToken ="";
 	window.onload = function(){
     if (cognitoUser != null) {
         cognitoUser.getSession(function(err, session) {
@@ -66,7 +78,7 @@
 					return;
 				}
 				console.log(result);
-				var idToken = session.getIdToken().getJwtToken();
+				idToken = session.getIdToken().getJwtToken();
 				$.ajax({
                     url: _config.api.prod.authorized.common.user+"?UserID="+result[0].getValue(),
 					type:'GET',
@@ -76,6 +88,7 @@
 					success: function(data) {
 					$('#avatar').attr("src", data.AvatarUrl);
 					$('#email_value').html(data.Email);
+					$('#id_value').html(data.UserID);
 					$('#role').html(data.Role);
 					
 					console.log(data);
@@ -98,9 +111,45 @@
         }
 	}
 	function update(){
-		var files = document.getElementById('photoupload').files;
+		// Upload image first
+		var s3 = new AWS.S3({
+        apiVersion: '2006-03-01',
+        params: {Bucket: bucketName}
+        });
+        var files = document.getElementById('photoupload').files;
+        if (!files.length) {
+            return alert('Please choose a file to upload first.');
+        }
         var file = files[0];
         var photoKey = file.name;
+        s3.upload({
+            Key: photoKey,
+            Body: file,
+            ACL: 'public-read'
+        }, function(err, res) {
+            if (err) {
+            return alert('There was an error uploading your photo: ', err.message);
+			}
+			var ajaxData = {
+				"UserID": $('#id_value').html(),
+                "AvatarUrl": res.Location
+    		}
+			$.ajax({
+				url: _config.api.prod.authorized.common.user,
+				type:"POST",
+				data: JSON.stringify(ajaxData),
+				headers:{
+						"Authorization": idToken
+				},
+				success: function() {
+					alert('Success to update data');
+					location.reload();    
+				},
+				error: function(err){
+					return alert('There was an error while update your avatar', err.message);
+				}
+			});
+	});
 	}
     </script>
   </body>

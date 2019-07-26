@@ -18,12 +18,13 @@ func main() {
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String(Region)},
 	)
+	bucketName := os.Getenv("BUCKET_NAME")
 
 	// Create S3 service client
 	svc := s3.New(sess)
 
 	req, _ := svc.PutObjectRequest(&s3.PutObjectInput{
-		Bucket: aws.String("myBucket"),
+		Bucket: aws.String(bucketName),
 		Key:    aws.String("myKey"),
 		Body:   strings.NewReader("EXPECTED CONTENTS"),
 	})
